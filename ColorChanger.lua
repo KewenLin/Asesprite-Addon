@@ -19,7 +19,7 @@ function changeToCanvasPosition(dlg)
     local rect = image.bounds
     local blueValue
     for x = 0, sprite.width - 1 do
-        blueValue = x % 2 == 0 and 255 or 0
+        blueValue = x % 2 == 0 and 0 or 255
         for y = 0, sprite.height - 1 do
             blueValue = blueValue == 0 and 255 or 0
             if isInsideRectangle(x,y,rect.x,rect.y,rect.w,rect.h) then
