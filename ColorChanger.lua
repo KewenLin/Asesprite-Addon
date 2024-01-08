@@ -39,6 +39,7 @@ function createDialogue()
             changeToCanvasPosition()
         end
     }
+    dlg:show()
 end
 
 do
