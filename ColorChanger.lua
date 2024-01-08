@@ -12,10 +12,7 @@ function changeToCanvasPosition()
     local image = cel.image
     local blueValue
     for x = 0, image.width - 1 do
-        if x % 0 == 0 then
-            blueValue = 255
-        else
-            blueValue = 0
+        blueValue = x % 2 == 0 and 255 or 0
         for y = 0, image.height - 1 do
             local pixelValue = image:getPixel(x, y)
             local alpha = app.pixelColor.rgbaA(pixelValue)
