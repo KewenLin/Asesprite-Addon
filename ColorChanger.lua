@@ -26,7 +26,7 @@ function changeToCanvasPosition(dlg)
             local alpha = app.pixelColor.rgbaA(pixelValue)
             if alpha >= 1 then
                 local color = Color(x, y, blueValue, 255)
-                image:drawPixel(x, y, color)
+                image:drawPixel(x + cel.position.x, y + cel.position.y, color)
             end
         end
     end
