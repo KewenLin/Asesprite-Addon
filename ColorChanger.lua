@@ -36,6 +36,7 @@ function createDialogue()
         text = "Change Color",
         onclick = function()
             changeToCanvasPosition()
+            dlg:close()
         end
     }
     dlg:show{ 
