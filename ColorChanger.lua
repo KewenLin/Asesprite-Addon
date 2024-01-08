@@ -13,8 +13,9 @@ function changeToCanvasPosition()
   
     for y = 0, image.height - 1 do
         for x = 0, image.width - 1 do
-            local pixel = image:getPixel(x, y)
-            if pixel.alpha >= 1 then
+            local pixelValue = image:getPixel(x, y)
+            local alpha = app.pixelColor.rgbaA(pixelValue)
+            if alpha >= 1 then
                 local r = x
                 local g = y
                 local color = Color(r, g, 0, 255)
