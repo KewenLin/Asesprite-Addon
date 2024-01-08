@@ -11,8 +11,8 @@ function changeToCanvasPosition()
 
     local image = cel.image
   
-    for x = 0, sprite.width - 1 do
-        for y = 0, sprite.height - 1 do
+    for x = 0, image.width - 1 do
+        for y = 0, image.height - 1 do
             local pixelValue = image:getPixel(x, y)
             local alpha = app.pixelColor.rgbaA(pixelValue)
             if alpha >= 1 then
