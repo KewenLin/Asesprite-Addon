@@ -18,15 +18,15 @@ function changeToCanvasPosition(dlg)
     local image = cel.image
     local rect = image.bounds
     local blueValue
-    for x = 0, sprite.width - 1 do
+    for x = 0, image.width - 1 do
         blueValue = x % 2 == 0 and 0 or 255
-        for y = 0, sprite.height - 1 do
+        for y = 0, image.height - 1 do
             blueValue = blueValue == 0 and 255 or 0
             local pixelValue = image:getPixel(x, y)
             local alpha = app.pixelColor.rgbaA(pixelValue)
             if alpha >= 1 then
-                local color = Color(x, y, blueValue, 255)
-                image:drawPixel(x + cel.position.x, y + cel.position.y, color)
+                local color = Color(x+ cel.position.x, y + cel.position.y, blueValue, 255)
+                image:drawPixel(x, y, color)
             end
         end
     end
