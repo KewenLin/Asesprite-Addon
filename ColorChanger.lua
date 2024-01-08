@@ -41,4 +41,6 @@ function createDialogue()
     }
 end
 
-createDialogue()
+do
+  createDialogue()
+end
