@@ -1,11 +1,17 @@
-function changeToCanvasPosition()
+function changeToCanvasPosition(dlg)
+    dlg:modify{ id= "status",
+            text= "Processing" }
     local sprite = app.activeSprite
     if sprite == nil then
+        dlg:modify{ id= "status",
+            text= "No sprite" }
         return
     end
 
     local cel = app.activeCel
     if cel == nil then
+        dlg:modify{ id= "status",
+            text= "No cell" }
         return
     end
 
@@ -26,6 +32,8 @@ function changeToCanvasPosition()
             end
         end
     end
+    dlg:modify{ id= "status",
+            text= "Done" }
 end
 
 function isInsideRectangle(x, y, rectX, rectY, rectWidth, rectHeight)
@@ -47,9 +55,13 @@ function createDialogue()
         id = "change",
         text = "Change Color",
         onclick = function()
-            changeToCanvasPosition()
-            dlg:close()
+            changeToCanvasPosition(dlg)
         end
+    }
+    dlg:
+    label{ 
+        id= "status",
+        text= "No action" 
     }
     dlg:show{ 
         wait=false 
