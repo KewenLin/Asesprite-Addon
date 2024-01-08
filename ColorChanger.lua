@@ -18,7 +18,7 @@ function changeToCanvasPosition()
             if alpha >= 1 then
                 local r = x
                 local g = y
-                local color = Color(r, g, 0, 255)
+                local color = Color(r, g, 255, 255)
                 image:drawPixel(x, y, color)
             end
         end
