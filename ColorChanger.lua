@@ -15,8 +15,8 @@ function changeToCanvasPosition()
         for y = 0, image.height - 1 do
             local pixelValue = image:getPixel(x, y)
             local alpha = app.pixelColor.rgbaA(pixelValue)
+            blueValue = blueValue == 0 and 255 or 0
             if alpha >= 1 then
-                blueValue = blueValue == 0 and 255 or 0
                 local color = Color(x, y, blueValue, 255)
                 image:drawPixel(x, y, color)
             end
