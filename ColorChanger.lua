@@ -19,9 +19,9 @@ function changeToCanvasPosition(dlg)
 
     local blueValue
     for x = 0, image.width - 1 do
-        blueValue = x % 2 == 0 and 2 or 253
+        blueValue = x % 2 == 0 and dlg.data.Value1 or dlg.data.Value2
         for y = 0, image.height - 1 do
-            blueValue = blueValue == 2 and 253 or 2
+            blueValue = blueValue == dlg.data.Value1 and dlg.data.Value2 or dlg.data.Value1
             local pixelValue = image:getPixel(x, y)
             local alpha = app.pixelColor.rgbaA(pixelValue)
             if alpha >= 1 then
