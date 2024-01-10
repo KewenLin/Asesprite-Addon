@@ -61,6 +61,22 @@ function createDialogue()
         id= "status",
         text= "No action" 
     }
+    dlg:
+    slider{ 
+        id= "Value1",
+        label= "Value1",
+        min= 0,
+        max= 255,
+        value= 0
+    }
+    dlg:
+    slider{ 
+        id= "Value2",
+        label= "Value2",
+        min= 0,
+        max= 255,
+        value= 255
+    }
     dlg:show{ 
         wait=false 
     }
