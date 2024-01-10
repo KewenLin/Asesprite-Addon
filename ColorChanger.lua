@@ -16,7 +16,7 @@ function changeToCanvasPosition(dlg)
     end
 
     local image = cel.image
-    local rect = image.bounds
+
     local blueValue
     for x = 0, image.width - 1 do
         blueValue = x % 2 == 0 and 2 or 253
@@ -32,13 +32,6 @@ function changeToCanvasPosition(dlg)
     end
     dlg:modify{ id= "status",
             text= "Done" }
-end
-
-function isInsideRectangle(x, y, rectX, rectY, rectWidth, rectHeight)
-    local rectRight = rectX + rectWidth
-    local rectBottom = rectY + rectHeight
-
-    return x >= rectX and x <= rectRight and y >= rectY and y <= rectBottom
 end
 
 function createDialogue()
