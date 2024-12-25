@@ -1,8 +1,7 @@
 -- Aseprite script: Replace color based on neighbors with user-selected default colors
 
-
 -- Helper function to get a pixel's color safely (handles out-of-bounds)
-function getPixelSafe(image, x, y)
+local function getPixelSafe(image, x, y)
     if x < 0 or y < 0 or x >= image.width or y >= image.height then
         return nil -- Out of bounds
     end
@@ -10,14 +9,7 @@ function getPixelSafe(image, x, y)
 end
 
 -- Function to process the image and replace colors based on neighbor checks
-function replaceColorBasedOnNeighbors(dlg)
-    -- Get the currently selected color from the active palette
-    local fgColor = app.fgColor -- Foreground color as default target color
-    local bgColor = app.bgColor -- Background color as default outline color
-    
-    local targetColor = app.pixelColor.rgba(dlg.targetColor.red, dlg.targetColor.green, dlg.targetColor.blue, dlg.targetColor.alpha)
-    local outlineColor = app.pixelColor.rgba(dlg.outlineColor.red, dlg.outlineColor.green, dlg.outlineColor.blue, dlg.outlineColor.alpha)
-
+local function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
     local cel = sprite.cels[1]
     if not cel then
         app.alert("No cel in the active sprite!")
@@ -56,9 +48,17 @@ function replaceColorBasedOnNeighbors(dlg)
 end
 
 -- Show input dialog for colors
-function createDialogue()
+local function createDialogue()
+    local sprite = app.activeSprite
+    if not sprite then
+        app.alert("No active sprite!")
+        return
+    end
+
+    local fgColor = app.fgColor -- Foreground color as default target color
+    local bgColor = app.bgColor -- Background color as default outline color
+
     local dlg = Dialog("Outline Color Tool")
-    
     dlg:color{
         id = "targetColor",
         label = "Target Color",
@@ -72,20 +72,32 @@ function createDialogue()
     dlg:button{
         id = "ok",
         text = "OK",
-        focus = true
+        focus = true,
         onclick = function()
-            replaceColorBasedOnNeighbors(dlg)
+            local data = dlg.data
+            local targetColor = app.pixelColor.rgba(
+                data.targetColor.red,
+                data.targetColor.green,
+                data.targetColor.blue,
+                data.targetColor.alpha
+            )
+            local outlineColor = app.pixelColor.rgba(
+                data.outlineColor.red,
+                data.outlineColor.green,
+                data.outlineColor.blue,
+                data.outlineColor.alpha
+            )
+
+            app.transaction(function()
+                replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
+            end)
         end
     }
     dlg:button{
         id = "cancel",
         text = "Cancel"
     }
-    dlg:show{ 
-        wait=false 
-    }
+    dlg:show{ wait = true }
 end
-    
-do
-  createDialogue()
-end
+
+createDialogue()
