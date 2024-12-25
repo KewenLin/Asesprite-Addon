@@ -1,46 +1,39 @@
 -- Aseprite script: Replace color based on neighbors with user-selected default colors
 
--- Helper function to get a pixel's color safely (handles out-of-bounds)
-local function getPixelSafe(image, x, y)
-    if x < 0 or y < 0 or x >= image.width or y >= image.height then
-        return nil -- Out of bounds
-    end
-    return image:getPixel(x, y)
-end
-
 -- Function to process the image and replace colors based on neighbor checks
 local function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
-    local cel = sprite.cels[1]
-    if not cel then
-        app.alert("No cel in the active sprite!")
+    ldlg:modify{ id= "status",
+            text= "Processing" }
+    local sprite = app.activeSprite
+    if sprite == nil then
+        dlg:modify{ id= "status",
+            text= "No sprite" }
         return
     end
 
-    local image = cel.image:clone() -- Work on a clone to prevent modifying during checks
-    local processedImage = cel.image
+    local cel = app.activeCel
+    if cel == nil then
+        dlg:modify{ id= "status",
+            text= "No cell" }
+        return
+    end
+
+    local image = cel.image
 
     for y = 0, image.height - 1 do
         for x = 0, image.width - 1 do
-            local currentColor = image:getPixel(x, y)
-            if currentColor == targetColor then
-                -- Check the 8 neighbors
-                local isBoundaryPixel = false
+            local pixelValue = image:getPixel(x, y)
+            local alpha = app.pixelColor.rgbaA(pixelValue)
+            if alpha >= 1 then
                 for dx = -1, 1 do
                     for dy = -1, 1 do
-                        if not (dx == 0 and dy == 0) then -- Skip the current pixel
-                            local neighborColor = getPixelSafe(image, x + dx, y + dy)
+                        if not (dx == 0 and dy == 0) then
+                            local neighborColor = image:getPixel(x+ dx, y + dy)
                             if neighborColor and neighborColor ~= targetColor then
-                                isBoundaryPixel = true
-                                break
+                                image:drawPixel(x+ dx, x+ dx, outlineColor)
                             end
                         end
                     end
-                    if isBoundaryPixel then break end
-                end
-
-                -- Replace the pixel if it is a boundary pixel
-                if isBoundaryPixel then
-                    processedImage:putPixel(x, y, outlineColor)
                 end
             end
         end
