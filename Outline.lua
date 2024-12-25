@@ -1,13 +1,13 @@
 -- Aseprite script: Replace color based on neighbors
 
-local function getPixelColor(image, x, y)
+function getPixelColor(image, x, y)
     if x < 0 or y < 0 or x >= image.width or y >= image.height then
         return nil -- Out of bounds
     end
     return image:getPixel(x, y)
 end
 
-local function replaceColorBasedOnNeighbors(sprite, targetColor, replacementColor)
+function replaceColorBasedOnNeighbors(sprite, targetColor, replacementColor)
     local image = sprite.cels[1].image:clone() -- Clone the image to avoid modifying during iteration
 
     for y = 0, image.height - 1 do
