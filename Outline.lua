@@ -1,17 +1,5 @@
 -- Aseprite script: Replace color based on neighbors with user-selected default colors
-local dlg = Dialog("Outline Color Tool")
--- Get the currently selected color from the active palette
-local fgColor = app.fgColor -- Foreground color as default target color
-local bgColor = app.bgColor -- Background color as default outline color
 
--- Retrieve dialog results
-local data = dlg.data
-if not data.ok then
-    return -- User canceled
-end
-
-local targetColor = app.pixelColor.rgba(data.targetColor.red, data.targetColor.green, data.targetColor.blue, data.targetColor.alpha)
-local outlineColor = app.pixelColor.rgba(data.outlineColor.red, data.outlineColor.green, data.outlineColor.blue, data.outlineColor.alpha)
 
 -- Helper function to get a pixel's color safely (handles out-of-bounds)
 function getPixelSafe(image, x, y)
@@ -22,7 +10,14 @@ function getPixelSafe(image, x, y)
 end
 
 -- Function to process the image and replace colors based on neighbor checks
-function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
+function replaceColorBasedOnNeighbors(dlg)
+    -- Get the currently selected color from the active palette
+    local fgColor = app.fgColor -- Foreground color as default target color
+    local bgColor = app.bgColor -- Background color as default outline color
+    
+    local targetColor = app.pixelColor.rgba(dlg.targetColor.red, dlg.targetColor.green, dlg.targetColor.blue, dlg.targetColor.alpha)
+    local outlineColor = app.pixelColor.rgba(dlg.outlineColor.red, dlg.outlineColor.green, dlg.outlineColor.blue, dlg.outlineColor.alpha)
+
     local cel = sprite.cels[1]
     if not cel then
         app.alert("No cel in the active sprite!")
@@ -60,13 +55,10 @@ function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
     end
 end
 
--- Execute the function within a transaction to allow undo
-app.transaction(function()
-    replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
-end)
-
 -- Show input dialog for colors
 function createDialogue()
+    local dlg = Dialog("Outline Color Tool")
+    
     dlg:color{
         id = "targetColor",
         label = "Target Color",
@@ -81,6 +73,9 @@ function createDialogue()
         id = "ok",
         text = "OK",
         focus = true
+        onclick = function()
+            replaceColorBasedOnNeighbors(dlg)
+        end
     }
     dlg:button{
         id = "cancel",
@@ -89,7 +84,8 @@ function createDialogue()
     dlg:show{ 
         wait=false 
     }
-
+end
+    
 do
   createDialogue()
 end
