@@ -1,37 +1,8 @@
 -- Aseprite script: Replace color based on neighbors with user-selected default colors
-
-local sprite = app.activeSprite
-if not sprite then
-    app.alert("No active sprite!")
-    return
-end
-
+local dlg = Dialog("Outline Color Tool")
 -- Get the currently selected color from the active palette
 local fgColor = app.fgColor -- Foreground color as default target color
 local bgColor = app.bgColor -- Background color as default outline color
-
--- Show input dialog for colors
-local dlg = Dialog("Outline Color Tool")
-dlg:color{
-    id = "targetColor",
-    label = "Target Color",
-    color = fgColor, -- Default: Foreground color
-}
-dlg:color{
-    id = "outlineColor",
-    label = "Outline Color",
-    color = bgColor, -- Default: Background color
-}
-dlg:button{
-    id = "ok",
-    text = "OK",
-    focus = true
-}
-dlg:button{
-    id = "cancel",
-    text = "Cancel"
-}
-dlg:show()
 
 -- Retrieve dialog results
 local data = dlg.data
@@ -43,7 +14,7 @@ local targetColor = app.pixelColor.rgba(data.targetColor.red, data.targetColor.g
 local outlineColor = app.pixelColor.rgba(data.outlineColor.red, data.outlineColor.green, data.outlineColor.blue, data.outlineColor.alpha)
 
 -- Helper function to get a pixel's color safely (handles out-of-bounds)
-local function getPixelSafe(image, x, y)
+function getPixelSafe(image, x, y)
     if x < 0 or y < 0 or x >= image.width or y >= image.height then
         return nil -- Out of bounds
     end
@@ -51,7 +22,7 @@ local function getPixelSafe(image, x, y)
 end
 
 -- Function to process the image and replace colors based on neighbor checks
-local function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
+function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
     local cel = sprite.cels[1]
     if not cel then
         app.alert("No cel in the active sprite!")
@@ -94,4 +65,31 @@ app.transaction(function()
     replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
 end)
 
-app.refresh()
+-- Show input dialog for colors
+function createDialogue()
+    dlg:color{
+        id = "targetColor",
+        label = "Target Color",
+        color = fgColor, -- Default: Foreground color
+    }
+    dlg:color{
+        id = "outlineColor",
+        label = "Outline Color",
+        color = bgColor, -- Default: Background color
+    }
+    dlg:button{
+        id = "ok",
+        text = "OK",
+        focus = true
+    }
+    dlg:button{
+        id = "cancel",
+        text = "Cancel"
+    }
+    dlg:show{ 
+        wait=false 
+    }
+
+do
+  createDialogue()
+end
