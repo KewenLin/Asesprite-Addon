@@ -71,7 +71,7 @@ function createDialogue()
         text = "No action"
     }
     dlg:label{
-        id = "Error"
+        id = "Error",
         text = "Hello
     }
     dlg:button{
