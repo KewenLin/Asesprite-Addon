@@ -8,7 +8,7 @@ function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
         return
     end
 
-    local image = cel.image:clone()
+    local image = cel.image
     local selection = sprite.selection
     local selectionBounds
 
@@ -34,8 +34,7 @@ function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
                                 local neighborColor = image:getPixel(x - selectionBounds.x + dx, y - selectionBounds.y + dy)
                                 if neighborColor and neighborColor ~= targetColor then
                                     -- Directly change the pixel color if the condition is met
-                                    cel.image:drawPixel(x - selectionBounds.x, y - selectionBounds.y, outlineColor)
-                                    break
+                                    image:drawPixel(x - selectionBounds.x + dx, y - selectionBounds.y + dy, outlineColor)
                                 end
                             end
                         end
