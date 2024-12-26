@@ -1,8 +1,10 @@
 -- Function to replace colors based on neighbors and selection area (or whole sprite if no selection)
-function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
+function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
+    dlg:modify{ id = "status", text = "Processing..." }
+
     local cel = app.activeCel
     if not cel then
-        app.alert("No active cel!")
+        dlg:modify{ id = "status", text = "No active cel!" }
         return
     end
 
@@ -25,26 +27,25 @@ function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
             if selection:contains(x, y) or not selection then
                 local currentColor = image:getPixel(x - selectionBounds.x, y - selectionBounds.y)  -- Adjust based on selection's position
                 if currentColor == targetColor then
-                    local isBoundaryPixel = false
+                    -- Check the 8 neighbors directly
                     for dx = -1, 1 do
                         for dy = -1, 1 do
                             if not (dx == 0 and dy == 0) then
                                 local neighborColor = image:getPixel(x - selectionBounds.x + dx, y - selectionBounds.y + dy)
                                 if neighborColor and neighborColor ~= targetColor then
-                                    isBoundaryPixel = true
+                                    -- Directly change the pixel color if the condition is met
+                                    cel.image:drawPixel(x - selectionBounds.x, y - selectionBounds.y, outlineColor)
                                     break
                                 end
                             end
                         end
-                        if isBoundaryPixel then break end
-                    end
-                    if isBoundaryPixel then
-                        cel.image:drawPixel(x - selectionBounds.x, y - selectionBounds.y, outlineColor)
                     end
                 end
             end
         end
     end
+
+    dlg:modify{ id = "status", text = "Done!" }
 end
 
 -- Function to create the dialog and initiate the process
@@ -66,6 +67,10 @@ function createDialogue()
         label = "Outline Color",
         color = app.bgColor,
     }
+    dlg:label{
+        id = "status",
+        text = "No action"
+    }
     dlg:button{
         id = "ok",
         text = "OK",
@@ -86,7 +91,7 @@ function createDialogue()
             )
 
             app.transaction(function()
-                replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
+                replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
             end)
         end
     }
@@ -97,6 +102,4 @@ function createDialogue()
     dlg:show{ wait = true }
 end
 
-do
-    createDialogue()
-end
+createDialogue()
