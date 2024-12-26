@@ -1,80 +1,101 @@
-function changeToCanvasPosition(dlg)
-    dlg:modify{ id= "status",
-            text= "Processing" }
-    local sprite = app.activeSprite
-    if sprite == nil then
-        dlg:modify{ id= "status",
-            text= "No sprite" }
+-- Function to replace colors based on neighbors and selection area (or whole sprite if no selection)
+function replaceColorBasedOnNeighbors(dlg)
+    dlg:modify{ id = "status", text = "Processing..." }
+
+    local sprite = app.sprite
+    if not sprite then
+        dlg:modify{ id = "status", text = "No active sprite!" }
         return
     end
-
-    local cel = app.activeCel
-    if cel == nil then
-        dlg:modify{ id= "status",
-            text= "No cell" }
+    
+    local data = dlg.data
+    local targetColor = app.pixelColor.rgba(
+        data.targetColor.red,
+        data.targetColor.green,
+        data.targetColor.blue,
+        data.targetColor.alpha
+    )
+    local outlineColor = app.pixelColor.rgba(
+        data.outlineColor.red,
+        data.outlineColor.green,
+        data.outlineColor.blue,
+        data.outlineColor.alpha
+    )
+    
+    local cel = app.cel
+    if not cel then
+        dlg:modify{ id = "status", text = "No active cel!" }
         return
     end
 
     local image = cel.image
+    local selection = sprite.selection
+    local selectionBounds
 
-    local blueValue
-    for x = 0, image.width - 1 do
-        blueValue = x % 2 == 0 and dlg.data.Value1 or dlg.data.Value2
-        for y = 0, image.height - 1 do
-            blueValue = blueValue == dlg.data.Value1 and dlg.data.Value2 or dlg.data.Value1
-            local pixelValue = image:getPixel(x, y)
-            local alpha = app.pixelColor.rgbaA(pixelValue)
-            if alpha >= 1 then
-                local color = Color(x+ cel.position.x, y + cel.position.y, blueValue, 255)
-                image:drawPixel(x, y, color)
+    -- If there's a selection, use its bounds; otherwise, use the whole sprite
+    if not selection.isEmpty then
+        selectionBounds = selection.bounds
+    else
+        -- Use the entire sprite if there's no selection
+        selectionBounds = {x = 0, y = 0, width = image.width, height = image.height}
+    end
+
+    -- Loop through the image pixels within the selection bounds (or entire sprite)
+    for y = selectionBounds.y, selectionBounds.y + selectionBounds.height - 1 do
+        for x = selectionBounds.x, selectionBounds.x + selectionBounds.width - 1 do
+            local currentColor = image:getPixel(x, y)
+            if currentColor == targetColor then
+                -- Check the 8 neighbors directly
+                for dx = -1, 1 do
+                    for dy = -1, 1 do
+                        if not (dx == 0 and dy == 0) then
+                            local neighborColor = image:getPixel(x + dx, y + dy)
+                            if neighborColor and neighborColor ~= targetColor and selection:contains(x + dx, y + dy) then
+                                image:drawPixel(x + dx, y + dy, outlineColor)
+                            end
+                        end
+                    end
+                end
             end
         end
     end
-    dlg:modify{ id= "status",
-            text= "Done" }
+    dlg:modify{ id = "status", text = "Done!" }
 end
 
+-- Function to create the dialog and initiate the process
 function createDialogue()
-    local dlg
-    dlg =
-    Dialog {
-    title = "Color As Position"
+    local dlg = Dialog("Outline Color Tool")
+    dlg:color{
+        id = "targetColor",
+        label = "Target Color",
+        color = app.fgColor,
     }
-    
-    dlg:
-    button {
-        id = "change",
-        text = "Change Color",
+    dlg:color{
+        id = "outlineColor",
+        label = "Outline Color",
+        color = app.bgColor,
+    }
+    dlg:label{
+        id = "status",
+        text = "No action"
+    }
+    dlg:button{
+        id = "ok",
+        text = "OK",
+        focus = true,
         onclick = function()
-            changeToCanvasPosition(dlg)
+            app.transaction(function()
+                replaceColorBasedOnNeighbors(dlg)
+            end)
         end
     }
-    dlg:
-    label{ 
-        id= "status",
-        text= "No action" 
+    dlg:button{
+        id = "cancel",
+        text = "Cancel"
     }
-    dlg:
-    slider{ 
-        id= "Value1",
-        label= "Value1",
-        min= 0,
-        max= 255,
-        value= 0
-    }
-    dlg:
-    slider{ 
-        id= "Value2",
-        label= "Value2",
-        min= 0,
-        max= 255,
-        value= 255
-    }
-    dlg:show{ 
-        wait=false 
-    }
+    dlg:show{ wait = false }
 end
 
 do
-  createDialogue()
+    createDialogue()
 end
