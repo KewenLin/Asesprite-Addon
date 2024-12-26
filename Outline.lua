@@ -27,10 +27,13 @@ local function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
             if alpha >= 1 then
                 for dx = -1, 1 do
                     for dy = -1, 1 do
-                        if not (dx == 0 and dy == 0) then
-                            local neighborColor = image:getPixel(x+ dx, y + dy)
-                            if neighborColor and neighborColor ~= targetColor then
-                                image:drawPixel(x+ dx, x+ dx, outlineColor)
+                       if not (dx == 0 and dy == 0) then
+                            local nx, ny = x + dx, y + dy
+                            if nx >= 0 and nx < image.width and ny >= 0 and ny < image.height then
+                                local neighborColor = image:getPixel(nx, ny)
+                                if neighborColor ~= targetColor then
+                                    image:drawPixel(nx, ny, outlineColor)
+                                end
                             end
                         end
                     end
