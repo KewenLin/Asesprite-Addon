@@ -8,8 +8,19 @@ function replaceColorBasedOnNeighbors(dlg)
         return
     end
     
-    local targetColor = dlg.data.targetColor
-    local outlineColor = dlg.data.outlineColor
+    local data = dlg.data
+    local targetColor = app.pixelColor.rgba(
+        data.targetColor.red,
+        data.targetColor.green,
+        data.targetColor.blue,
+        data.targetColor.alpha
+    )
+    local outlineColor = app.pixelColor.rgba(
+        data.outlineColor.red,
+        data.outlineColor.green,
+        data.outlineColor.blue,
+        data.outlineColor.alpha
+    )
     
     local cel = app.cel
     if not cel then
@@ -24,11 +35,9 @@ function replaceColorBasedOnNeighbors(dlg)
     -- If there's a selection, use its bounds; otherwise, use the whole sprite
     if not selection.isEmpty then
         selectionBounds = selection.bounds
-        dlg:modify{ id = "Error", text = "Selection" }
     else
         -- Use the entire sprite if there's no selection
         selectionBounds = {x = 0, y = 0, width = image.width, height = image.height}
-        dlg:modify{ id = "Error", text = "No Selection"}
     end
 
     -- Loop through the image pixels within the selection bounds (or entire sprite)
@@ -36,14 +45,19 @@ function replaceColorBasedOnNeighbors(dlg)
         for x = selectionBounds.x, selectionBounds.x + selectionBounds.width - 1 do
             local currentColor = image:getPixel(x, y)
             if currentColor == targetColor then
-                -- Check the 8 neighbors directly
-                for dx = -1, 1 do
-                    for dy = -1, 1 do
-                        if not (dx == 0 and dy == 0) then
-                            local neighborColor = image:getPixel(x + dx, y + dy)
-                            if neighborColor and neighborColor ~= targetColor then
-                                image:drawPixel(x + dx, y + dy, outlineColor)
-                            end
+                local neighbors = {
+                    {dx = -1, dy = 0},  -- left
+                    {dx = 1, dy = 0},   -- right
+                    {dx = 0, dy = -1},  -- up
+                    {dx = 0, dy = 1},   -- down
+                }
+
+                for _, neighbor in ipairs(neighbors) do
+                    local nx, ny = x + neighbor.dx, y + neighbor.dy
+                    if selection:contains(nx, ny) or selection.isEmpty then
+                        local neighborColor = image:getPixel(nx, ny)
+                        if neighborColor and neighborColor ~= targetColor then
+                            image:drawPixel(nx, ny, outlineColor)
                         end
                     end
                 end
@@ -70,10 +84,6 @@ function createDialogue()
         id = "status",
         text = "No action"
     }
-    dlg:label{
-        id = "Error",
-        text = "Hello
-    }
     dlg:button{
         id = "ok",
         text = "OK",
@@ -88,7 +98,7 @@ function createDialogue()
         id = "cancel",
         text = "Cancel"
     }
-    dlg:show{ wait = true }
+    dlg:show{ wait = false }
 end
 
 do
