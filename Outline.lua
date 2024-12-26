@@ -2,6 +2,7 @@
 
 -- Function to process the image and replace colors based on neighbor checks
 function replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
+    dlg:modify{ id = "status", text = "Processing..." }
     local sprite = app.activeSprite
     if sprite == nil then
         dlg:modify{ id= "status",
@@ -22,7 +23,7 @@ function replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
         for x = 0, image.width - 1 do
             local pixelValue = image:getPixel(x, y)
             local alpha = app.pixelColor.rgbaA(pixelValue)
-            if alpha >= 1 then
+            if alpha >= 1 and pixelValue == targetColor then
                 for dx = -1, 1 do
                     for dy = -1, 1 do
                        if not (dx == 0 and dy == 0) then
@@ -39,6 +40,7 @@ function replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
             end
         end
     end
+    dlg:modify{ id = "status", text = "Done!" }
 end
 
 -- Show input dialog for colors
@@ -58,6 +60,10 @@ function createDialogue()
         id = "outlineColor",
         label = "Outline Color",
         color = bgColor, -- Default: Background color
+    }
+    dlg:label{
+        id = "status",
+        text = "Ready"
     }
     dlg:button{
         id = "outlineBTN",
