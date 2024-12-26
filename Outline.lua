@@ -48,7 +48,11 @@ local function createDialogue()
     local fgColor = app.fgColor -- Foreground color as default target color
     local bgColor = app.bgColor -- Background color as default outline color
 
-    local dlg = Dialog("Outline Color Tool")
+    local dlg
+    dlg =
+    Dialog {
+    title = "Color As Position"
+    }
     dlg:color{
         id = "targetColor",
         label = "Target Color",
