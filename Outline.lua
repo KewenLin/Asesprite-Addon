@@ -13,7 +13,7 @@ function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
     local selectionBounds
 
     -- If there's a selection, use its bounds; otherwise, use the whole sprite
-    if selection and selection.bounds then
+    if not selection.isEmpty then
         selectionBounds = selection.bounds
     else
         -- Use the entire sprite if there's no selection
@@ -24,17 +24,16 @@ function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
     for y = selectionBounds.y, selectionBounds.y + selectionBounds.height - 1 do
         for x = selectionBounds.x, selectionBounds.x + selectionBounds.width - 1 do
             -- Check if the pixel is inside the selection region
-            if selection:contains(x, y) or not selection then
-                local currentColor = image:getPixel(x - selectionBounds.x, y - selectionBounds.y)  -- Adjust based on selection's position
+            if selection:contains(x, y) then
+                local currentColor = image:getPixel(x, y)
                 if currentColor == targetColor then
                     -- Check the 8 neighbors directly
                     for dx = -1, 1 do
                         for dy = -1, 1 do
                             if not (dx == 0 and dy == 0) then
-                                local neighborColor = image:getPixel(x - selectionBounds.x + dx, y - selectionBounds.y + dy)
+                                local neighborColor = image:getPixel(x + dx, y + dy)
                                 if neighborColor and neighborColor ~= targetColor then
-                                    -- Directly change the pixel color if the condition is met
-                                    image:drawPixel(x - selectionBounds.x + dx, y - selectionBounds.y + dy, outlineColor)
+                                    image:drawPixel(x + dx, y + dy, outlineColor)
                                 end
                             end
                         end
@@ -101,4 +100,6 @@ function createDialogue()
     dlg:show{ wait = true }
 end
 
-createDialogue()
+do
+    createDialogue()
+end
