@@ -48,10 +48,8 @@ local function createDialogue()
     local fgColor = app.fgColor -- Foreground color as default target color
     local bgColor = app.bgColor -- Background color as default outline color
 
-    local dlg
-    dlg =
-    Dialog {
-    title = "Color As Position"
+    local dlg = Dialog {
+        title = "Outline Color"
     }
     dlg:color{
         id = "targetColor",
@@ -64,9 +62,8 @@ local function createDialogue()
         color = bgColor, -- Default: Background color
     }
     dlg:button{
-        id = "ok",
-        text = "OK",
-        focus = true,
+        id = "outlineBTN",
+        text = "Outline",
         onclick = function()
             local data = dlg.data
             local targetColor = app.pixelColor.rgba(
@@ -82,16 +79,16 @@ local function createDialogue()
                 data.outlineColor.alpha
             )
 
-            app.transaction(function()
-                replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
-            end)
+            replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
         end
     }
     dlg:button{
         id = "cancel",
         text = "Cancel"
     }
-    dlg:show{ wait = true }
+    dlg:show{ wait = false }
 end
 
-createDialogue()
+do
+  createDialogue()
+end
