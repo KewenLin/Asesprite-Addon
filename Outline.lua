@@ -41,6 +41,10 @@ function replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
             end
         end
     end
+    dlg:modify{ 
+        id= "status",
+        text= "Done" 
+    }
 end
 
 -- Show input dialog for colors
@@ -61,6 +65,10 @@ function createDialogue()
         label = "Outline Color",
         color = bgColor, -- Default: Background color
     }
+    dlg:label{ 
+        id= "status",
+        text= "No action" 
+    }
     dlg:button{
         id = "outlineBTN",
         text = "Outline",
@@ -78,8 +86,9 @@ function createDialogue()
                 data.outlineColor.blue,
                 data.outlineColor.alpha
             )
-
-            replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
+            app.transaction(function()
+                replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
+            end)
         end
     }
     dlg:button{
