@@ -2,7 +2,7 @@
 
 -- Function to process the image and replace colors based on neighbor checks
 local function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
-    ldlg:modify{ id= "status",
+    dlg:modify{ id= "status",
             text= "Processing" }
     local sprite = app.activeSprite
     if sprite == nil then
