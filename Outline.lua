@@ -1,5 +1,5 @@
 -- Function to process the image and replace colors based on neighbor checks
-local function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
+function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
     if not dlg then
         app.alert("Dialog reference is missing!")
         return
@@ -58,7 +58,7 @@ local function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, d
 end
 
 -- Show input dialog for colors
-local function createDialogue()
+function createDialogue()
     local sprite = app.activeSprite
     if not sprite then
         app.alert("No active sprite!")
