@@ -1,7 +1,7 @@
 -- Aseprite script: Replace color based on neighbors with user-selected default colors
 
 -- Function to process the image and replace colors based on neighbor checks
-local function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
+local function replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
     dlg:modify{ id= "status",
             text= "Processing" }
     local sprite = app.activeSprite
@@ -45,12 +45,6 @@ end
 
 -- Show input dialog for colors
 local function createDialogue()
-    local sprite = app.activeSprite
-    if not sprite then
-        app.alert("No active sprite!")
-        return
-    end
-
     local fgColor = app.fgColor -- Foreground color as default target color
     local bgColor = app.bgColor -- Background color as default outline color
 
@@ -85,7 +79,7 @@ local function createDialogue()
             )
 
             app.transaction(function()
-                replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
+                replaceColorBasedOnNeighbors(dlg, targetColor, outlineColor)
             end)
         end
     }
