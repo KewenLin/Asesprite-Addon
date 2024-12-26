@@ -1,8 +1,17 @@
 -- Function to replace colors based on neighbors and selection area (or whole sprite if no selection)
-function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
+function replaceColorBasedOnNeighbors(dlg)
     dlg:modify{ id = "status", text = "Processing..." }
 
-    local cel = app.activeCel
+    local sprite = app.sprite
+    if not sprite then
+        app.alert("No active sprite!")
+        return
+    end
+    
+    local targetColor = dlg.data.targetColor
+    local outlineColor = dlg.data.outlineColor
+    
+    local cel = app.cel
     if not cel then
         dlg:modify{ id = "status", text = "No active cel!" }
         return
@@ -48,12 +57,6 @@ end
 
 -- Function to create the dialog and initiate the process
 function createDialogue()
-    local sprite = app.activeSprite
-    if not sprite then
-        app.alert("No active sprite!")
-        return
-    end
-
     local dlg = Dialog("Outline Color Tool")
     dlg:color{
         id = "targetColor",
@@ -74,22 +77,8 @@ function createDialogue()
         text = "OK",
         focus = true,
         onclick = function()
-            local data = dlg.data
-            local targetColor = app.pixelColor.rgba(
-                data.targetColor.red,
-                data.targetColor.green,
-                data.targetColor.blue,
-                data.targetColor.alpha
-            )
-            local outlineColor = app.pixelColor.rgba(
-                data.outlineColor.red,
-                data.outlineColor.green,
-                data.outlineColor.blue,
-                data.outlineColor.alpha
-            )
-
             app.transaction(function()
-                replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
+                replaceColorBasedOnNeighbors(dlg)
             end)
         end
     }
