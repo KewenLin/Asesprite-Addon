@@ -1,63 +1,53 @@
--- Function to process the image and replace colors based on neighbor checks
-function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
-    if not dlg then
-        app.alert("Dialog reference is missing!")
-        return
-    end
-
-    dlg:modify{ id = "status", text = "Processing..." }
-
+-- Function to replace colors based on neighbors and selection area (or whole sprite if no selection)
+function replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
     local cel = app.activeCel
     if not cel then
-        dlg:modify{ id = "status", text = "No active cel found!" }
+        app.alert("No active cel!")
         return
     end
 
-    local image = cel.image
-    local mask = app.activeImage
+    local image = cel.image:clone()
+    local selection = sprite.selection
+    local selectionBounds
 
-    if not mask then
-        dlg:modify{ id = "status", text = "No active mask, processing entire image." }
+    -- If there's a selection, use its bounds; otherwise, use the whole sprite
+    if selection and selection.bounds then
+        selectionBounds = selection.bounds
+    else
+        -- Use the entire sprite if there's no selection
+        selectionBounds = {x = 0, y = 0, width = image.width, height = image.height}
     end
 
-    local width, height = image.width, image.height
-
-    for y = 0, height - 1 do
-        for x = 0, width - 1 do
-            -- Skip pixels outside the mask, if a mask is active
-            if not mask or mask:getPixel(x, y) > 0 then
-                local pixelValue = image:getPixel(x, y)
-                local alpha = app.pixelColor.rgbaA(pixelValue)
-
-                if alpha >= 1 and pixelValue == targetColor then
-                    -- Check the 8 neighbors
+    -- Loop through the image pixels within the selection bounds (or entire sprite)
+    for y = selectionBounds.y, selectionBounds.y + selectionBounds.height - 1 do
+        for x = selectionBounds.x, selectionBounds.x + selectionBounds.width - 1 do
+            -- Check if the pixel is inside the selection region
+            if selection:contains(x, y) or not selection then
+                local currentColor = image:getPixel(x - selectionBounds.x, y - selectionBounds.y)  -- Adjust based on selection's position
+                if currentColor == targetColor then
+                    local isBoundaryPixel = false
                     for dx = -1, 1 do
                         for dy = -1, 1 do
                             if not (dx == 0 and dy == 0) then
-                                local nx, ny = x + dx, y + dy
-                                if nx >= 0 and nx < width and ny >= 0 and ny < height then
-                                    local neighborColor = image:getPixel(nx, ny)
-                                    if neighborColor ~= targetColor then
-                                        image:drawPixel(nx, ny, outlineColor)
-                                    end
+                                local neighborColor = image:getPixel(x - selectionBounds.x + dx, y - selectionBounds.y + dy)
+                                if neighborColor and neighborColor ~= targetColor then
+                                    isBoundaryPixel = true
+                                    break
                                 end
                             end
                         end
+                        if isBoundaryPixel then break end
+                    end
+                    if isBoundaryPixel then
+                        cel.image:drawPixel(x - selectionBounds.x, y - selectionBounds.y, outlineColor)
                     end
                 end
             end
         end
-
-        -- Update progress in the dialog
-        if y % 10 == 0 then
-            dlg:modify{ id = "status", text = string.format("Processing row %d of %d...", y + 1, height) }
-        end
     end
-
-    dlg:modify{ id = "status", text = "Done!" }
 end
 
--- Show input dialog for colors
+-- Function to create the dialog and initiate the process
 function createDialogue()
     local sprite = app.activeSprite
     if not sprite then
@@ -65,23 +55,16 @@ function createDialogue()
         return
     end
 
-    local fgColor = app.fgColor -- Foreground color as default target color
-    local bgColor = app.bgColor -- Background color as default outline color
-
     local dlg = Dialog("Outline Color Tool")
     dlg:color{
         id = "targetColor",
         label = "Target Color",
-        color = fgColor, -- Default: Foreground color
+        color = app.fgColor,
     }
     dlg:color{
         id = "outlineColor",
         label = "Outline Color",
-        color = bgColor, -- Default: Background color
-    }
-    dlg:label{
-        id = "status",
-        text = "Ready"
+        color = app.bgColor,
     }
     dlg:button{
         id = "ok",
@@ -103,7 +86,7 @@ function createDialogue()
             )
 
             app.transaction(function()
-                replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor, dlg)
+                replaceColorBasedOnNeighbors(sprite, targetColor, outlineColor)
             end)
         end
     }
@@ -111,7 +94,7 @@ function createDialogue()
         id = "cancel",
         text = "Cancel"
     }
-    dlg:show{ wait = false }
+    dlg:show{ wait = true }
 end
 
 do
